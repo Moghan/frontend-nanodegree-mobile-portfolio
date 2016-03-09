@@ -34,7 +34,9 @@ Install the npm-modules listed as devDependencies in the package.json file. At t
 * gulp-gm
 * gulp-htmlmin
 * gulp-jshint
-* gulp-uglify 
+* gulp-uglify
+* gulp-util
+* jshint
 
 e.g.
 ```
