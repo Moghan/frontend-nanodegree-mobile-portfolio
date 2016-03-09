@@ -8,20 +8,44 @@ _Your challenge, if you wish to accept it (and we sure hope you will), is to opt
 The project repo is available at https://github.com/Moghan/frontend-nanodegree-mobile-portfolio.git
 
 ## Getting started
-Publish the files in the 'dist' folder on your website.
-OR
-run on a local server using Python and ngrok.
+Publish the files in the 'dist' folder on your website,
+
+or run on a local server using Python and ngrok.
 
 ```bash
-  $> cd /path/to/your-project-folder/dist
+  $> cd /path/to/your-project-folder
+  $> cd dist
   $> python -m http.server 8080
   ```
 
 ``` bash
-  $> cd /path/to/your-project-folder/dist
+  $> cd /path/to/your-project-folder
+  $> cd dist
   $> ngrok http 8080
   ```
 
+## Build the project
+
+In your project folder:
+
+Install the npm-modules listed as devDependencies in the package.json file. At the moment they are the following.
+* gulp
+* gulp-cleancss
+* gulp-gm
+* gulp-htmlmin
+* gulp-jshint
+* gulp-uglify 
+
+e.g.
+```
+$> cd /path/to/your-project-folder
+$> npm install gulp-uglify --save-dev
+```
+Start the build with
+```
+$> cd /path/to/your-project-folder
+$> gulp
+```
 ## Details
 Evalution and Submission for the project.
 https://www.udacity.com/course/viewer#!/c-nd001/l-2735848561/m-2686388535
