@@ -1,11 +1,11 @@
 # frontend-nanodegree-mobile-portfolio
 
-This is project 3 in my Front-End Developer Nanodegree program.
+This is project 4 in my Front-End Developer Nanodegree program.
 
 The challange:
 _Your challenge, if you wish to accept it (and we sure hope you will), is to optimize this online portfolio for speed! In particular, optimize the critical rendering path and make this page render as quickly as possible by applying the techniques you've picked up in the [Critical Rendering Path course](https://www.udacity.com/course/ud884)._
 
-To get started, check out the repository, inspect the code,
+The project repo is available at https://github.com/Moghan/frontend-nanodegree-mobile-portfolio.git
 
 ## Getting started
 Publish the files in the 'dist' folder on your website.
