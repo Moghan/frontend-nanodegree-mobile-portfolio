@@ -378,7 +378,7 @@ var pizzaElementGenerator = function(i) {
   pizzaContainer.id = "pizza" + i;                // gives each pizza element a unique id
   pizzaImageContainer.classList.add("col-md-6");
 
-  pizzaImage.src = "images/pizza.png";
+  pizzaImage.src = "img/new_pizza.png";
   pizzaImage.classList.add("img-responsive");
   pizzaImageContainer.appendChild(pizzaImage);
   pizzaContainer.appendChild(pizzaImageContainer);
@@ -422,9 +422,9 @@ var resizePizzas = function(size) {
   changeSliderLabel(size);
 
    // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
-  function determineDx (elem, size) {
+  function determineDx (elem, size, windowWidth) {
     var oldWidth = elem.offsetWidth;
-    var windowWidth = document.querySelector("#randomPizzas").offsetWidth;
+    
     var oldSize = oldWidth / windowWidth;
 
     // Optional TODO: change to 3 sizes? no more xl?
@@ -450,11 +450,16 @@ var resizePizzas = function(size) {
 
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
-    for (var i = 0; i < document.querySelectorAll(".randomPizzaContainer").length; i++) {
-      var dx = determineDx(document.querySelectorAll(".randomPizzaContainer")[i], size);
-      var newwidth = (document.querySelectorAll(".randomPizzaContainer")[i].offsetWidth + dx) + 'px';
-      document.querySelectorAll(".randomPizzaContainer")[i].style.width = newwidth;
-    }
+    var rpc = document.querySelectorAll(".randomPizzaContainer");
+    var windowWidth = document.querySelector("#randomPizzas").offsetWidth;
+    //console.log(rpc);
+
+    var dx = determineDx(rpc[0], size, windowWidth);
+    //console.log(rpc[0]);
+    var newwidth = (rpc[0].offsetWidth + dx) + 'px';
+
+    for(var i = 0; i < rpc.length; i++)
+      rpc[i].style.width = newwidth;
   }
 
   changePizzaSizes(size);
@@ -501,11 +506,12 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
-
   var items = document.querySelectorAll('.mover');
+  var docScrolltop = document.body.scrollTop;
+
   for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin((document.body.scrollTop / 1250) + (i % 5));
-    items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
+    var phase = Math.sin((docScrolltop / 1250) + (i % 5));
+    items[i].style.transform = 'translateX(' + (items[i].basicLeft + (100 * phase)) + 'px)';
   }
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
@@ -523,17 +529,45 @@ window.addEventListener('scroll', updatePositions);
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
-  var cols = 8;
-  var s = 256;
-  for (var i = 0; i < 200; i++) {
-    var elem = document.createElement('img');
-    elem.className = 'mover';
-    elem.src = "images/pizza.png";
-    elem.style.height = "100px";
-    elem.style.width = "73.333px";
-    elem.basicLeft = (i % cols) * s;
-    elem.style.top = (Math.floor(i / cols) * s) + 'px';
-    document.querySelector("#movingPizzas1").appendChild(elem);
+//TERRIBLE SOLUTION BELOW
+/* 200 little pizzas floating around is far more then nesessary!
+* Easy to calculate rows * rows as new number of pizzas, but how does this work on mobile.
+* I suspect bootstrap is playing tricks on me.
+* TODO: A good solution instead of this crappy one.
+*/
+  if(screen.width > 1900) {
+    var s = 256;
+    var numCols = Math.floor(screen.width / s);
+    var numRows = Math.floor(screen.height / s);
+
+    for (var i = 0; i < (numRows*numCols); i++) {
+      var elem = document.createElement('img');
+      elem.className = 'mover';
+      elem.src = "img/flying_pizza.png";
+      elem.style.height = "100px";
+      elem.style.width = "73.333px";
+      elem.basicLeft = (i % numCols) * s;
+      elem.style.top = ((i % numRows) * s) + 'px';
+      elem.style.left = "0";
+      document.querySelector("#movingPizzas1").appendChild(elem);
+    }
+    updatePositions();
   }
-  updatePositions();
+  // Still havn´t found a good solution for flying pizzas on tablets and phones.
+  else {
+    var cols = 8;
+    var s = 256;
+    for (var i = 0; i < 200; i++) {
+      var elem = document.createElement('img');
+      elem.className = 'mover';
+      elem.src = "img/flying_pizza.png";
+      elem.style.height = "100px";
+      elem.style.width = "73.333px";
+      elem.basicLeft = (i % cols) * s;
+      elem.style.top = (Math.floor(i / cols) * s) + 'px';
+      elem.style.left = "0";
+      document.querySelector("#movingPizzas1").appendChild(elem);
+    }
+    updatePositions();
+  }  
 });
