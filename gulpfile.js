@@ -27,13 +27,11 @@ gulp.task('lint', function() {
     .pipe(jshint.reporter('default'));
 });
 
-
 gulp.task('styles:dist', function() {
   gulp.src(['css/*.css', 'views/css/*.css'])
     .pipe(cleancss({keepBreaks: false}))
     .pipe(gulp.dest('dist/css'));
 });
-
 
 gulp.task('scripts', function() {
   return gulp.src(['js/*.js', 'views/js/*.js'])

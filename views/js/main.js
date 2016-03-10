@@ -449,13 +449,16 @@ var resizePizzas = function(size) {
   }
 
   // Iterates through pizza elements on the page and changes their widths
+  /* To avoid 'Forced reflow' all read-operations is done before any write-operations.
+  * Devtools is still showing one forced reflow. I don´t know if its possible to get rid of that.
+  * Deleted the change of innerhtml in changeSliderLabel() but that didn´t do any difference.
+  * At the moment my guess is that it exist because of the 'slider.onchange'.
+  */
   function changePizzaSizes(size) {
     var rpc = document.querySelectorAll(".randomPizzaContainer");
     var windowWidth = document.querySelector("#randomPizzas").offsetWidth;
-    //console.log(rpc);
 
     var dx = determineDx(rpc[0], size, windowWidth);
-    //console.log(rpc[0]);
     var newwidth = (rpc[0].offsetWidth + dx) + 'px';
 
     for(var i = 0; i < rpc.length; i++)
@@ -503,6 +506,11 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
 // Moves the sliding background pizzas based on scroll position
+/* Same strategi as with the changePizzaSize(), read-operations first, then write-operations.
+* Introduced transform:translateX() instead of setting the left-property. Was aiming for triggering only the composition layer. 
+* Unfortantly I failed. My guess is that the fixed-property is the catch. Had an idea using translateY when scrolling instead of having fixed pizzas,
+* but gave up and went for a project-submit :)
+*/
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
