@@ -7,6 +7,8 @@ _Your challenge, if you wish to accept it (and we sure hope you will), is to opt
 
 The project repo is available at https://github.com/Moghan/frontend-nanodegree-mobile-portfolio.git
 
+Have a look at the mobile-portfolio sight at http://riots.se/mobile-portfolio/ 
+
 ## Getting started
 Publish the files in the 'dist' folder on your website,
 
