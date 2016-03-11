@@ -420,8 +420,6 @@ var resizePizzas = function(size) {
         console.log("bug in changeSliderLabel");
     }
   }
-  
-
 
    // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
   function determineDx (elem, size, windowWidth) {
@@ -522,7 +520,6 @@ function initPositions() {
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
-  //var items = document.getElementsByClassName('mover');
   var docScrolltop = document.body.scrollTop;
 
   var phase = [];
@@ -558,6 +555,13 @@ document.addEventListener('DOMContentLoaded', function() {
   var s = 256;
   var numCols = Math.floor(sw / s);
   var numRows = Math.floor(sh / s);
+
+  /* A BUG! Thanks review, never thougt about this. 
+  * If numCols equals number of phases in updatePositions(),
+  * pizzas in the same column ends up with equal translateX value.
+  * This is the fix.
+  */
+  if(numCols%5 === 0) numCols++;
 
   var movingPizzaDiv = document.getElementById('movingPizzas1');
   
