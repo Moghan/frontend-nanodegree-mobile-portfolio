@@ -56,3 +56,7 @@ https://www.udacity.com/course/viewer#!/c-nd001/l-2735848561/m-2686388535
 
 ## License
 MIT
+
+## Updates
+### 2016-03-11
+* Enable 'hardware-accelerated CCS' on class 'mover'.

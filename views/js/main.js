@@ -403,23 +403,25 @@ var resizePizzas = function(size) {
   window.performance.mark("mark_start_resize");   // User Timing API function
 
   // Changes the value for the size of the pizza above the slider
+  var divElement = document.getElementById('pizzaSize');
+  console.log(divElement);
   function changeSliderLabel(size) {
     switch(size) {
       case "1":
-        document.querySelector("#pizzaSize").innerHTML = "Small";
+        divElement.innerHTML = "Small";
         return;
       case "2":
-        document.querySelector("#pizzaSize").innerHTML = "Medium";
+        divElement.innerHTML = "Medium";
         return;
       case "3":
-        document.querySelector("#pizzaSize").innerHTML = "Large";
+        divElement.innerHTML = "Large";
         return;
       default:
         console.log("bug in changeSliderLabel");
     }
   }
+  
 
-  changeSliderLabel(size);
 
    // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
   function determineDx (elem, size, windowWidth) {
@@ -450,13 +452,11 @@ var resizePizzas = function(size) {
 
   // Iterates through pizza elements on the page and changes their widths
   /* To avoid 'Forced reflow' all read-operations is done before any write-operations.
-  * Devtools is still showing one forced reflow. I don´t know if its possible to get rid of that.
-  * Deleted the change of innerhtml in changeSliderLabel() but that didn´t do any difference.
-  * At the moment my guess is that it exist because of the 'slider.onchange'.
+  * changeSliderLabel() is writing so moved that call to avoid mixing read/write ops.
   */
   function changePizzaSizes(size) {
-    var rpc = document.querySelectorAll(".randomPizzaContainer");
-    var windowWidth = document.querySelector("#randomPizzas").offsetWidth;
+    var rpc = document.getElementsByClassName("randomPizzaContainer");
+    var windowWidth = document.getElementById("randomPizzas").offsetWidth;
 
     var dx = determineDx(rpc[0], size, windowWidth);
     var newwidth = (rpc[0].offsetWidth + dx) + 'px';
@@ -466,6 +466,9 @@ var resizePizzas = function(size) {
   }
 
   changePizzaSizes(size);
+  // By doing the call to changeSliderLabel after the call to changePizzaSizes, all write operations is gathered, and one last forced reflow was removed.
+  changeSliderLabel(size);
+  
 
   // User Timing API is awesome
   window.performance.mark("mark_end_resize");
@@ -477,10 +480,9 @@ var resizePizzas = function(size) {
 window.performance.mark("mark_start_generating"); // collect timing data
 
 // This for-loop actually creates and appends all of the pizzas when the page loads
-for (var i = 2; i < 100; i++) {
-  var pizzasDiv = document.getElementById("randomPizzas");
+var pizzasDiv = document.getElementById("randomPizzas");
+for (var i = 2; i < 100; i++)
   pizzasDiv.appendChild(pizzaElementGenerator(i));
-}
 
 // User Timing API again. These measurements tell you how long it took to generate the initial pizzas
 window.performance.mark("mark_end_generating");
@@ -511,16 +513,24 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 * Unfortantly I failed. My guess is that the fixed-property is the catch. Had an idea using translateY when scrolling instead of having fixed pizzas,
 * but gave up and went for a project-submit :)
 */
+var items;
+
+function initPositions() {
+  items = document.getElementsByClassName('mover');
+}
+
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
-  var items = document.querySelectorAll('.mover');
+  //var items = document.getElementsByClassName('mover');
   var docScrolltop = document.body.scrollTop;
 
-  for (var i = 0; i < items.length; i++) {
-    var phase = Math.sin((docScrolltop / 1250) + (i % 5));
-    items[i].style.transform = 'translateX(' + (items[i].basicLeft + (100 * phase)) + 'px)';
-  }
+  var phase = [];
+  for (var i = 0; i < 5 ; i++)
+    phase[i] = Math.sin((docScrolltop / 1250) + i);
+  
+  for (i = 0; i < items.length; i++)
+    items[i].style.transform = 'translateX(' + (items[i].basicLeft + (100 * phase[i%5])) + 'px)';
 
   // User Timing API to the rescue again. Seriously, it's worth learning.
   // Super easy to create custom metrics.
@@ -537,45 +547,37 @@ window.addEventListener('scroll', updatePositions);
 
 // Generates the sliding pizzas when the page loads.
 document.addEventListener('DOMContentLoaded', function() {
-//TERRIBLE SOLUTION BELOW
 /* 200 little pizzas floating around is far more then nesessary!
-* Easy to calculate rows * rows as new number of pizzas, but how does this work on mobile.
-* I suspect bootstrap is playing tricks on me.
-* TODO: A good solution instead of this crappy one.
+* With some good tips in the review on how to find width and height on mobile devices,
+* now a better(lower) number for items is calculated
 */
-  if(screen.width > 1900) {
-    var s = 256;
-    var numCols = Math.floor(screen.width / s);
-    var numRows = Math.floor(screen.height / s);
+  var ratio = window.devicePixelRatio || 1;
+  var sw = screen.width * ratio;
+  var sh = screen.height * ratio;
 
-    for (var i = 0; i < (numRows*numCols); i++) {
-      var elem = document.createElement('img');
-      elem.className = 'mover';
-      elem.src = "img/flying_pizza.png";
-      elem.style.height = "100px";
-      elem.style.width = "73.333px";
-      elem.basicLeft = (i % numCols) * s;
-      elem.style.top = ((i % numRows) * s) + 'px';
-      elem.style.left = "0";
-      document.querySelector("#movingPizzas1").appendChild(elem);
-    }
-    updatePositions();
+  var s = 256;
+  var numCols = Math.floor(sw / s);
+  var numRows = Math.floor(sh / s);
+
+  var movingPizzaDiv = document.getElementById('movingPizzas1');
+  
+  var elem = document.createElement('img');
+  elem.className = 'mover';
+  elem.src = "img/flying_pizza.png";
+  elem.style.height = "100px";
+  elem.style.width = "73.333px";
+  elem.style.left = "0";
+
+/* To put 'var elem = document.createElement('img');' outside the for-loop did not work so well,
+* and I am not sure cloning an element is faster than declearing a new one.
+* Anyway, this is what I come up with.
+*/ 
+  for (var i = 0; i < (numRows*numCols); i++) {
+    var cln = elem.cloneNode(false);
+    cln.basicLeft = (i % numCols) * s;
+    cln.style.top = (Math.floor(i / numCols) * s) + 'px';
+    movingPizzaDiv.appendChild(cln);
   }
-  // Still havn´t found a good solution for flying pizzas on tablets and phones.
-  else {
-    var cols = 8;
-    var s = 256;
-    for (var i = 0; i < 200; i++) {
-      var elem = document.createElement('img');
-      elem.className = 'mover';
-      elem.src = "img/flying_pizza.png";
-      elem.style.height = "100px";
-      elem.style.width = "73.333px";
-      elem.basicLeft = (i % cols) * s;
-      elem.style.top = (Math.floor(i / cols) * s) + 'px';
-      elem.style.left = "0";
-      document.querySelector("#movingPizzas1").appendChild(elem);
-    }
-    updatePositions();
-  }  
+  initPositions();
+  updatePositions();
 });
